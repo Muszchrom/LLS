@@ -1,23 +1,19 @@
-from rotaryencoder import RotaryEncoder
 from servo import Servo
+from machine import UART
 
-enc = RotaryEncoder(0, 1)
-old_value = enc.get_value()
+servo_v = Servo(13)
+servo_h = Servo(12)
+uart = UART(0, 115200)
 
-servo = Servo(13)
-
-angle = 0
-
+x=0
+y=0
 while True:
-    new_value = enc.get_value()
-    if old_value == new_value:
-        continue
-    
-    if new_value < old_value and angle > 0:
-        angle -= 5
-    elif new_value > old_value and angle < 180:
-        angle += 5
-    
-    old_value = new_value
-    servo.set_angle(angle)
+    if uart.any():
+        data = uart.readline()
+        if len(data) != 2:
+            continue
+        x, y = data
         
+    servo_h.set_angle(x)
+    servo_v.set_angle(y)
+
